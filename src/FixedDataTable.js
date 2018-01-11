@@ -161,6 +161,12 @@ var FixedDataTable = createReactClass({
     showScrollbarY: PropTypes.bool,
 
     /**
+     * inset scrollbar
+     */
+    insetScrollbarX: PropTypes.bool,
+    insetScrollbarY: PropTypes.bool,
+
+    /**
      * Callback when horizontally scrolling the grid.
      *
      * Return false to stop propagation.
@@ -419,6 +425,8 @@ var FixedDataTable = createReactClass({
       headerHeight: 0,
       showScrollbarX: true,
       showScrollbarY: true,
+      insetScrollbarX: true,
+      insetScrollbarY: true,
       touchScrollEnabled: false,
       keyboardScrollEnabled: false,
       keyboardPageEnabled: false,
@@ -678,12 +686,13 @@ var FixedDataTable = createReactClass({
 
     var horizontalScrollbar;
     if (showScrollbarX) {
-      var scrollbarXWidth = state.width;
+      var scrollbarXWidth = state.width - state.fixedBufferWidth - Scrollbar.SIZE;
       horizontalScrollbar =
         <HorizontalScrollbar
           contentSize={scrollbarXWidth + state.maxScrollX}
           offset={bottomSectionOffset}
           onScroll={this._onHorizontalScroll}
+          horizontalLeft={state.fixedLeftOffset}
           position={state.scrollX}
           size={scrollbarXWidth}
         />;
@@ -1079,6 +1088,9 @@ var FixedDataTable = createReactClass({
       'You must set either a height or a maxHeight'
     );
 
+    var fixedBufferWidth = 0;
+    var fixedLeftOffset = 0;
+
     var children = [];
     ReactChildren.forEach(props.children, (child, index) => {
       if (child == null) {
@@ -1090,6 +1102,13 @@ var FixedDataTable = createReactClass({
         'child type should be <FixedDataTableColumn /> or ' +
         '<FixedDataTableColumnGroup />'
       );
+      if (child.props.fixed || child.props.fixedRight) {
+        fixedBufferWidth += child.props.width;
+
+        if (child.props.fixed) {
+          fixedLeftOffset += child.props.width;
+        }
+      }
       children.push(child);
     });
 
@@ -1334,6 +1353,8 @@ var FixedDataTable = createReactClass({
       columnResizingData,
       firstRowIndex,
       firstRowOffset,
+      fixedBufferWidth,
+      fixedLeftOffset,
       horizontalScrollbarVisible,
       maxScrollX,
       maxScrollY,
@@ -1525,6 +1546,7 @@ var HorizontalScrollbar = createReactClass({
     var outerContainerStyle = {
       height: Scrollbar.SIZE,
       width: this.props.size,
+      left: this.props.horizontalLeft,
     };
     var innerContainerStyle = {
       height: Scrollbar.SIZE,
