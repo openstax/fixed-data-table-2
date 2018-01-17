@@ -3783,8 +3783,7 @@ var FixedDataTable = (0, _createReactClass2.default)({
       headerHeight: 0,
       showScrollbarX: true,
       showScrollbarY: true,
-      insetScrollbarX: true,
-      insetScrollbarY: true,
+      insetScrollbarX: false,
       touchScrollEnabled: false,
       keyboardScrollEnabled: false,
       keyboardPageEnabled: false,
@@ -3966,6 +3965,11 @@ var FixedDataTable = (0, _createReactClass2.default)({
     scrollbarYHeight -= bodyOffsetTop;
     var bottomSectionOffset = 0;
     var footOffsetTop = props.maxHeight != null ? bodyOffsetTop + state.bodyHeight : bodyOffsetTop + scrollbarYHeight;
+
+    if (props.insetScrollbarX) {
+      footOffsetTop += _Scrollbar2.default.SIZE;
+    }
+
     var rowsContainerHeight = footOffsetTop + state.footerHeight;
 
     if (props.ownerHeight !== undefined && props.ownerHeight < state.height) {
@@ -3994,6 +3998,7 @@ var FixedDataTable = (0, _createReactClass2.default)({
       horizontalScrollbar = _React2.default.createElement(HorizontalScrollbar, {
         contentSize: scrollbarXWidth + state.maxScrollX,
         offset: bottomSectionOffset,
+        inset: props.insetScrollbarX,
         onScroll: this._onHorizontalScroll,
         horizontalLeft: state.fixedLeftOffset,
         position: state.scrollX,
@@ -4729,6 +4734,7 @@ var HorizontalScrollbar = (0, _createReactClass2.default)({
   propTypes: {
     contentSize: _propTypes2.default.number.isRequired,
     offset: _propTypes2.default.number.isRequired,
+    inset: _propTypes2.default.bool.isRequired,
     onScroll: _propTypes2.default.func.isRequired,
     position: _propTypes2.default.number.isRequired,
     size: _propTypes2.default.number.isRequired
@@ -4763,7 +4769,7 @@ var HorizontalScrollbar = (0, _createReactClass2.default)({
         'div',
         { style: innerContainerStyle },
         _React2.default.createElement(_Scrollbar2.default, _extends({}, this.props, {
-          isOpaque: true,
+          isOpaque: !this.props.inset,
           orientation: 'horizontal',
           offset: undefined
         }))
@@ -4771,6 +4777,10 @@ var HorizontalScrollbar = (0, _createReactClass2.default)({
     );
   }
 });
+
+HorizontalScrollbar.defaultProps = {
+  inset: false
+};
 
 module.exports = FixedDataTable;
 
