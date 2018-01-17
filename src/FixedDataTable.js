@@ -1091,6 +1091,16 @@ var FixedDataTable = createReactClass({
     var fixedBufferWidth = 0;
     var fixedLeftOffset = 0;
 
+    var calcFixed = function(component) {
+      if ((component.props.fixed || component.props.fixedRight) && component.props.width) {
+        fixedBufferWidth += component.props.width;
+
+        if (component.props.fixed) {
+          fixedLeftOffset += component.props.width;
+        }
+      }
+    };
+
     var children = [];
     ReactChildren.forEach(props.children, (child, index) => {
       if (child == null) {
@@ -1102,13 +1112,13 @@ var FixedDataTable = createReactClass({
         'child type should be <FixedDataTableColumn /> or ' +
         '<FixedDataTableColumnGroup />'
       );
-      if (child.props.fixed || child.props.fixedRight) {
-        fixedBufferWidth += child.props.width;
 
-        if (child.props.fixed) {
-          fixedLeftOffset += child.props.width;
-        }
+      if (child.type.__TableColumn__) {
+        calcFixed(child);
+      } else if (child.type.__TableColumnGroup__) {
+        ReactChildren.forEach(child.props.children, calcFixed);
       }
+
       children.push(child);
     });
 
