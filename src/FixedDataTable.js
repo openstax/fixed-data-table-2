@@ -425,8 +425,7 @@ var FixedDataTable = createReactClass({
       headerHeight: 0,
       showScrollbarX: true,
       showScrollbarY: true,
-      insetScrollbarX: true,
-      insetScrollbarY: true,
+      insetScrollbarX: false,
       touchScrollEnabled: false,
       keyboardScrollEnabled: false,
       keyboardPageEnabled: false,
@@ -658,6 +657,11 @@ var FixedDataTable = createReactClass({
     var footOffsetTop = props.maxHeight != null
       ? bodyOffsetTop + state.bodyHeight
       : bodyOffsetTop + scrollbarYHeight;
+
+    if (props.insetScrollbarX) {
+        footOffsetTop += Scrollbar.SIZE;
+    }
+
     var rowsContainerHeight = footOffsetTop + state.footerHeight;
 
     if (props.ownerHeight !== undefined && props.ownerHeight < state.height) {
@@ -691,6 +695,7 @@ var FixedDataTable = createReactClass({
         <HorizontalScrollbar
           contentSize={scrollbarXWidth + state.maxScrollX}
           offset={bottomSectionOffset}
+          inset={props.insetScrollbarX}
           onScroll={this._onHorizontalScroll}
           horizontalLeft={state.fixedLeftOffset}
           position={state.scrollX}
@@ -1539,6 +1544,7 @@ var HorizontalScrollbar = createReactClass({
   propTypes: {
     contentSize: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
+    inset: PropTypes.bool.isRequired,
     onScroll: PropTypes.func.isRequired,
     position: PropTypes.number.isRequired,
     size: PropTypes.number.isRequired,
@@ -1581,7 +1587,7 @@ var HorizontalScrollbar = createReactClass({
         <div style={innerContainerStyle}>
           <Scrollbar
             {...this.props}
-            isOpaque={true}
+            isOpaque={!this.props.inset}
             orientation="horizontal"
             offset={undefined}
           />
@@ -1590,5 +1596,9 @@ var HorizontalScrollbar = createReactClass({
     );
   },
 });
+
+HorizontalScrollbar.defaultProps = {
+    inset: false,
+};
 
 module.exports = FixedDataTable;
