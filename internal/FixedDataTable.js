@@ -1038,19 +1038,29 @@ var FixedDataTable = (0, _createReactClass2.default)({
     var fixedBufferWidth = 0;
     var fixedLeftOffset = 0;
 
+    var calcFixed = function calcFixed(component) {
+      if ((component.props.fixed || component.props.fixedRight) && component.props.width) {
+        fixedBufferWidth += component.props.width;
+
+        if (component.props.fixed) {
+          fixedLeftOffset += component.props.width;
+        }
+      }
+    };
+
     var children = [];
     ReactChildren.forEach(props.children, function (child, index) {
       if (child == null) {
         return;
       }
       (0, _invariant2.default)(child.type.__TableColumnGroup__ || child.type.__TableColumn__, 'child type should be <FixedDataTableColumn /> or ' + '<FixedDataTableColumnGroup />');
-      if (child.props.fixed || child.props.fixedRight) {
-        fixedBufferWidth += child.props.width;
 
-        if (child.props.fixed) {
-          fixedLeftOffset += child.props.width;
-        }
+      if (child.type.__TableColumn__) {
+        calcFixed(child);
+      } else if (child.type.__TableColumnGroup__) {
+        ReactChildren.forEach(child.props.children, calcFixed);
       }
+
       children.push(child);
     });
 
